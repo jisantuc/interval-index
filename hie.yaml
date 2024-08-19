@@ -1,0 +1,7 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:interval-index"
+
+    - path: "test"
+      component: "interval-index:test:interval-index-test"
