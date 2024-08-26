@@ -2,13 +2,17 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Data.Interval
   ( Interval (..),
     IntervalLit (..),
     ofInterval,
+    asEndpointVector
   )
 where
+
+import qualified Data.Vector as Vector
 
 -- TODO convert to multiline docstring
 
@@ -53,6 +57,9 @@ data IntervalLit a = IntervalLit
 
 ofInterval :: (Interval k a) => a -> IntervalLit k
 ofInterval x = IntervalLit (intervalStart x) (intervalEnd x)
+
+asEndpointVector :: IntervalLit a -> Vector.Vector a
+asEndpointVector (IntervalLit { start, end }) = Vector.fromList [start, end]
 
 instance (Ord a) => Interval a (IntervalLit a) where
   intervalStart :: IntervalLit a -> a
