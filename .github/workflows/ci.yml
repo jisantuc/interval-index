@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: nixbuild/nix-quick-install-action@v28
         with:
-          extra_nix_config: |
+          nix_conf: |
             experimental-features = nix-command flakes
             trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
             substituters = https://cache.iog.io
