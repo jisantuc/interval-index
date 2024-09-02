@@ -1,7 +1,7 @@
 name: CI
 on: push
 jobs:
-  nix build:
+  flake-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
