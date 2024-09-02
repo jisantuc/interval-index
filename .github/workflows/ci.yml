@@ -26,3 +26,5 @@ jobs:
           target: cabal:interval-index-test
       - name: Send coverage report
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
