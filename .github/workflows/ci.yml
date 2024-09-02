@@ -4,6 +4,7 @@ jobs:
   nix build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: nixbuild/nix-quick-install-action@v28
         with:
           extra_nix_config: |
