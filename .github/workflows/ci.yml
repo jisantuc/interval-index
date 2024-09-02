@@ -1,7 +1,7 @@
 name: CI
 on: push
 jobs:
-  minimal:
+  nix build:
     runs-on: ubuntu-latest
     steps:
       - uses: nixbuild/nix-quick-install-action@v28
