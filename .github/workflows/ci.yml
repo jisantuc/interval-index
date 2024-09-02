@@ -5,10 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: nixbuild/nix-quick-install-action@v28
-        extra_nix_config: |
-          experimental-features = nix-command flakes
-          trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
-          substituters = https://cache.iog.io
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+            substituters = https://cache.iog.io
       - run: nix build --version
       - run: nix build ./examples/flakes-simple
       - name: hello
