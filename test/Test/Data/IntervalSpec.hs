@@ -2,8 +2,8 @@
 
 module Test.Data.IntervalSpec where
 
-import Data.Interval (Interval (..), IntervalLit (..), covers, touches)
 import Data.Foldable (traverse_)
+import Data.Interval (Interval (..), IntervalLit (..), covers, touches)
 import Test.Hspec (Spec, describe, it, shouldBe)
 
 spec :: Spec
@@ -39,7 +39,13 @@ spec = describe "intervals" $ do
             intervalWrapper4
             intervalWrapper5
           coversSuite "IntervalLit" intervalLit1 intervalLit2 intervalLit3 intervalLit4 intervalLit5
-          coversSuite "IntervalWrapper" intervalWrapper1 intervalWrapper2 intervalWrapper3 intervalWrapper4 intervalWrapper5
+          coversSuite
+            "IntervalWrapper"
+            intervalWrapper1
+            intervalWrapper2
+            intervalWrapper3
+            intervalWrapper4
+            intervalWrapper5
 
 newtype IntervalWrapper = IntervalWrapper (IntervalLit Char, String)
 
