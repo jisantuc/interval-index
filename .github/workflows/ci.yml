@@ -1,8 +1,13 @@
 name: CI
-on: push
+on: 
+  push:
+  pull_request:
 jobs:
   flake-build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: "write"
+      contents: "read"
     steps:
       - uses: actions/checkout@v4
       - uses: nixbuild/nix-quick-install-action@v28
