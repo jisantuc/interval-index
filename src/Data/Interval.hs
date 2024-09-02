@@ -8,7 +8,7 @@ module Data.Interval
   ( Interval (..),
     IntervalLit (..),
     ofInterval,
-    asEndpointVector
+    asEndpointVector,
   )
 where
 
@@ -48,6 +48,9 @@ class (Ord key) => Interval key a | a -> key where
       -- or if interval 1 includes the end of interval 2
       || intervalStart i1 < intervalEnd i2 && intervalEnd i1 >= intervalEnd i2
 
+  null :: a -> Bool
+  null value = intervalStart value == intervalEnd value
+
 -- | A type of literal intervals that carry no data other than their start/stop
 data IntervalLit a = IntervalLit
   { start :: a,
@@ -59,7 +62,7 @@ ofInterval :: (Interval k a) => a -> IntervalLit k
 ofInterval x = IntervalLit (intervalStart x) (intervalEnd x)
 
 asEndpointVector :: IntervalLit a -> Vector.Vector a
-asEndpointVector (IntervalLit { start, end }) = Vector.fromList [start, end]
+asEndpointVector (IntervalLit {start, end}) = Vector.fromList [start, end]
 
 instance (Ord a) => Interval a (IntervalLit a) where
   intervalStart :: IntervalLit a -> a

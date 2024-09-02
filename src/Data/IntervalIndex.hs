@@ -24,7 +24,18 @@ where
 import Data.Containers.ListUtils (nubOrd)
 import Data.Foldable (fold, foldMap', foldl')
 import Data.Functor ((<&>))
-import Data.Interval (Interval (..), IntervalLit (..), ofInterval)
+import Data.Interval
+  ( Interval
+      ( contains,
+        covers,
+        intervalEnd,
+        intervalStart,
+        touches
+      ),
+    IntervalLit (..),
+    ofInterval,
+  )
+import qualified Data.Interval as Interval (null)
 import Data.IntervalIndex.Internal (IntervalIndex (..))
 import Data.List (sort, sortBy)
 import qualified Data.Map.Strict as Map
@@ -66,6 +77,9 @@ insert idx@(IntervalIndex {index, idMap, intervals}) value =
           newIntervalId = maxId + 1
           newIntervals = Map.insert newIntervalId value intervals
           coveredKeysToRebuild = coveredKeys idx keyForNewValue
+          completelyCoveringKey =
+            index `findCoveringInterval` intervalStart value >>= \key ->
+              if key `covers` ofInterval value then Just key else Nothing
           extraKeysAtStartOfIndex =
             if intervalStart value
               < minIndexStart
@@ -101,14 +115,21 @@ insert idx@(IntervalIndex {index, idMap, intervals}) value =
               ( index `findCoveringInterval` intervalEnd value >>= \intervalLit@(IntervalLit {start}) ->
                   if start == intervalEnd value then Nothing else Just intervalLit
               )
-          keyRangeToRebuild =
-            Vector.concat
-              [ extraKeysAtStartOfIndex,
-                existingKeySplitForStartOfNewValue,
-                coveredKeysToRebuild,
-                existingKeySplitForEndOfNewValue,
-                extraKeysAtEndofIndex
-              ]
+          keyRangeToRebuild = case completelyCoveringKey of
+            Just key ->
+              Vector.fromList . filter (not . Interval.null) $
+                [ IntervalLit (start key) (intervalStart value),
+                  IntervalLit (intervalStart value) (intervalEnd value),
+                  IntervalLit (intervalEnd value) (end key)
+                ]
+            Nothing ->
+              Vector.concat
+                [ extraKeysAtStartOfIndex,
+                  existingKeySplitForStartOfNewValue,
+                  coveredKeysToRebuild,
+                  existingKeySplitForEndOfNewValue,
+                  extraKeysAtEndofIndex
+                ]
           (newIndex, newIdMap) =
             if null keyRangeToRebuild
               then
