@@ -35,6 +35,12 @@
             {
               packages = [ haskell ] ++ devDependencies;
             };
+          devShells.ci = pkgs.mkShell
+            {
+              packages = [ haskell ] ++ [
+                haskellPackages.cabal-install
+              ];
+            };
 
           packages.default = haskellPackages.callCabal2nix "interval-index" ./. { };
         }
