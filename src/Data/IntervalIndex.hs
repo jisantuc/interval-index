@@ -14,9 +14,6 @@ module Data.IntervalIndex
   )
 where
 
--- - then:
---   - at is "find key, get all the data"
---   - atInterval is "find keys, get all the (unique) data"
 --   - merge is find keys that touch, split them up to find the new keys, but if present in only one of the two trees
 --     leave it
 --   - delete is find keys, remove from values (and maybe merge adjacent?)
@@ -25,17 +22,15 @@ import Data.Containers.ListUtils (nubOrd)
 import Data.Foldable (fold, foldMap', foldl')
 import Data.Functor ((<&>))
 import Data.Interval
-  ( Interval
-      ( contains,
-        covers,
-        intervalEnd,
-        intervalStart,
-        touches
-      ),
+  ( Interval,
     IntervalLit (..),
+    contains,
+    intervalEnd,
+    intervalStart,
     ofInterval,
+    touches,
   )
-import qualified Data.Interval as Interval (null)
+import qualified Data.Interval as Interval
 import Data.IntervalIndex.Internal (IntervalIndex (..))
 import Data.List (sort, sortBy)
 import qualified Data.Map.Strict as Map
@@ -65,73 +60,29 @@ at (IntervalIndex {index, idMap, intervals}) key =
         Nothing -> []
         Just intervalIds -> intervals `forIds` intervalIds
 
-insert :: (Show k, Interval k a) => IntervalIndex k a -> a -> IntervalIndex k a
-insert idx@(IntervalIndex {index, idMap, intervals}) value =
-  if null index
-    then singleton value
-    else
+insert :: (Interval k a) => IntervalIndex k a -> a -> IntervalIndex k a
+insert idx@(IntervalIndex {index, idMap, intervals}) value
+  | Prelude.null index = singleton value
+  | Interval.null value = idx
+  | otherwise =
       let keyForNewValue = ofInterval value
           maxId = maximum $ Map.keys intervals
-          maxIndexEnd = end . Vector.last $ index
-          minIndexStart = start . Vector.head $ index
           newIntervalId = maxId + 1
           newIntervals = Map.insert newIntervalId value intervals
-          coveredKeysToRebuild = coveredKeys idx keyForNewValue
-          completelyCoveringKey =
-            index `findCoveringInterval` intervalStart value >>= \key ->
-              if key `covers` ofInterval value then Just key else Nothing
-          extraKeysAtStartOfIndex =
-            if intervalStart value
-              < minIndexStart
-              then Vector.singleton (IntervalLit (intervalStart value) (minIndexStart `min` intervalEnd value))
-              else Vector.empty
-          extraKeysAtEndofIndex =
-            if intervalEnd value > maxIndexEnd
-              then Vector.singleton (IntervalLit (maxIndexEnd `max` intervalStart value) (intervalEnd value))
-              else Vector.empty
-          existingKeySplitForStartOfNewValue =
-            foldMap
-              ( \keyToSplit@(IntervalLit {start, end}) ->
-                  if keyToSplit `Vector.elem` coveredKeysToRebuild
-                    then Vector.empty
-                    else
-                      Vector.fromList
-                        [ IntervalLit {start, end = intervalStart value},
-                          IntervalLit {start = intervalStart value, end}
-                        ]
+          keyContainingStart = findCoveringInterval index (intervalStart value)
+          keyContainingEnd = findCoveringInterval index (intervalEnd value)
+          firstEndpoint = maybe (intervalStart value) start keyContainingStart
+          lastEndpoint = maybe (intervalEnd value) end keyContainingEnd
+          withoutPrefix = Vector.dropWhile (\intervalLit -> end intervalLit <= firstEndpoint) index
+          keysToRebuild = Vector.takeWhile (\intervalLit -> end intervalLit <= lastEndpoint) withoutPrefix
+          endpointsToRebuild =
+            sort . nubOrd $
+              ( [intervalStart value, intervalEnd value]
+                  ++ Vector.toList (keysToRebuild >>= (\(IntervalLit {start, end}) -> Vector.fromList [start, end]))
               )
-              (index `findCoveringInterval` intervalStart value)
-          existingKeySplitForEndOfNewValue =
-            foldMap
-              ( \keyToSplit@(IntervalLit {start, end}) ->
-                  if keyToSplit `Vector.elem` coveredKeysToRebuild
-                    then Vector.empty
-                    else
-                      Vector.fromList
-                        [ IntervalLit {start, end = intervalEnd value},
-                          IntervalLit {start = intervalEnd value, end}
-                        ]
-              )
-              ( index `findCoveringInterval` intervalEnd value >>= \intervalLit@(IntervalLit {start}) ->
-                  if start == intervalEnd value then Nothing else Just intervalLit
-              )
-          keyRangeToRebuild = case completelyCoveringKey of
-            Just key ->
-              Vector.fromList . filter (not . Interval.null) $
-                [ IntervalLit (start key) (intervalStart value),
-                  IntervalLit (intervalStart value) (intervalEnd value),
-                  IntervalLit (intervalEnd value) (end key)
-                ]
-            Nothing ->
-              Vector.concat
-                [ extraKeysAtStartOfIndex,
-                  existingKeySplitForStartOfNewValue,
-                  coveredKeysToRebuild,
-                  existingKeySplitForEndOfNewValue,
-                  extraKeysAtEndofIndex
-                ]
+          keyRangeToRebuild = Vector.fromList $ zipWith IntervalLit endpointsToRebuild (tail endpointsToRebuild)
           (newIndex, newIdMap) =
-            if null keyRangeToRebuild
+            if Prelude.null keyRangeToRebuild
               then
                 let (h, t) = Vector.span (\intervalLit -> end intervalLit <= start keyForNewValue) index
                  in ( Vector.concat [h, Vector.singleton keyForNewValue, t],
@@ -161,12 +112,6 @@ insert idx@(IntervalIndex {index, idMap, intervals}) value =
                       Map.union withoutNewIndex updatedMap
                     )
        in IntervalIndex {index = newIndex, idMap = newIdMap, intervals = newIntervals}
-
-coveredKeys :: (Interval k a) => IntervalIndex k a -> IntervalLit k -> Vector.Vector (IntervalLit k)
-coveredKeys (IntervalIndex {index}) range = fromMaybe Vector.empty $ do
-  firstIndex <- Vector.findIndex (range `covers`) index
-  lastIndex <- Vector.findIndexR (range `covers`) index
-  pure $ Vector.slice firstIndex (lastIndex - firstIndex + 1) index
 
 touchingKeys :: (Interval k a) => IntervalIndex k a -> IntervalLit k -> Vector.Vector (IntervalLit k)
 touchingKeys (IntervalIndex {index}) range = fromMaybe Vector.empty $ do

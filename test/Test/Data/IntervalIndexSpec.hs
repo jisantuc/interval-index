@@ -103,6 +103,10 @@ spec = describe "interval indexs" $ do
       insertMatchesFromListTest [IntervalLit 'a' 'e', IntervalLit 'g' 'm', IntervalLit 'j' 'k']
       insertMatchesFromListTest [IntervalLit 'e' 'j', IntervalLit 'h' 'm', IntervalLit 'l' 'p']
       insertMatchesFromListTest [IntervalLit 'a' 'e', IntervalLit 'g' 'm', IntervalLit 'j' 'n']
+      insertMatchesFromListTest [IntervalLit 'a' 'e', IntervalLit 'g' 'm', IntervalLit 'c' 'j']
+    it "returns an unmodified index when inserting null intervals" $ do
+      (IntervalIndex.singleton (IntervalLit 'a' 'e') `IntervalIndex.insert` IntervalLit 'c' 'c')
+        `shouldBe` IntervalIndex.singleton (IntervalLit 'a' 'e')
   describe "merging indices" $ do
     it "gives back an empty index with two empty indices" pass
     it "treats an empty index as a left identity" pass
