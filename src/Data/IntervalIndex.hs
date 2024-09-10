@@ -24,6 +24,7 @@ import Data.Functor ((<&>))
 import Data.Interval
   ( Interval,
     IntervalLit (..),
+    asEndpointVector,
     contains,
     intervalEnd,
     intervalStart,
@@ -78,7 +79,7 @@ insert idx@(IntervalIndex {index, idMap, intervals}) value
           endpointsToRebuild =
             sort . nubOrd $
               ( [intervalStart value, intervalEnd value]
-                  ++ Vector.toList (keysToRebuild >>= (\(IntervalLit {start, end}) -> Vector.fromList [start, end]))
+                  ++ Vector.toList (keysToRebuild >>= asEndpointVector)
               )
           keyRangeToRebuild = Vector.fromList $ zipWith IntervalLit endpointsToRebuild (tail endpointsToRebuild)
           (newIndex, newIdMap) =
