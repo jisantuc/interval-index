@@ -126,8 +126,14 @@ touching idx@(IntervalIndex {idMap, intervals}) range =
       ids = fromMaybe Set.empty $ foldMap' (`Map.lookup` idMap) indices
    in intervals `forIds` ids
 
-merge :: IntervalIndex k a -> IntervalIndex k a -> IntervalIndex k a
-merge = undefined
+merge :: (Interval k a) => IntervalIndex k a -> IntervalIndex k a -> IntervalIndex k a
+merge idx1 idx2
+  | Vector.null $ index idx1 = idx2
+  | Vector.null $ index idx2 = idx1
+  -- this is needlessly slow and risks rebuilding the index a whole bunch of times vs. finding the affected range
+  -- for the collection of keys and rebuilding that index range once, _but_ I can write tests against it because
+  -- it Does the Right Thing™️, which is useful for _the future_ when I want to make it faster.
+  | otherwise = foldl' insert idx1 (Map.elems . intervals $ idx2)
 
 fromList :: (Ord k, Interval k a) => [a] -> IntervalIndex k a
 fromList [] = empty
