@@ -5,3 +5,6 @@ cradle:
 
     - path: "test"
       component: "interval-index:test:interval-index-test"
+
+    - path: "bench/Main.hs"
+      component: "interval-index:bench:interval-index-bench"

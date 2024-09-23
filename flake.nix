@@ -27,8 +27,11 @@
             ps.hspec
             ps.hspec-discover
           ]);
+          benchDependencies = (ps: [
+            ps.criterion
+          ]);
           haskell = haskellPackages.ghcWithPackages
-            (ps: packageDependencies ps ++ testDependencies ps);
+            (ps: packageDependencies ps ++ testDependencies ps ++ benchDependencies ps);
         in
         {
           devShells.default = pkgs.mkShell
