@@ -13,6 +13,7 @@
           haskellPackages = pkgs.haskell.packages.${compiler};
           packageDependencies = (ps: [
             ps.containers
+            ps.deepseq
             ps.vector
           ]);
           devDependencies = with haskellPackages; [
@@ -28,6 +29,8 @@
             ps.hspec-discover
           ]);
           benchDependencies = (ps: [
+            ps.aeson
+            ps.bytestring
             ps.criterion
           ]);
           haskell = haskellPackages.ghcWithPackages
