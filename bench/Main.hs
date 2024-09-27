@@ -4,20 +4,19 @@
 module Main where
 
 import Control.DeepSeq (NFData)
+import Control.Monad (replicateM)
 import Criterion.Main (bench, bgroup, defaultMain, nf)
-import Data.Aeson (FromJSON, throwDecode')
-import qualified Data.ByteString.Lazy as BS
 import Data.Interval (Interval (..))
 import qualified Data.IntervalIndex as IntervalIndex
+import Data.List (zipWith4)
 import GHC.Generics (Generic)
+import System.Random (randomIO)
 
 data BogusMetadata = BogusMetadata
   { bogusId :: String,
     size :: Int
   }
-  deriving (Eq, Show, Generic)
-
-instance FromJSON BogusMetadata
+  deriving (Eq, Generic, Show)
 
 instance NFData BogusMetadata
 
@@ -28,13 +27,27 @@ data BogusData = IntervalData
   }
   deriving (Eq, Show, Generic)
 
-instance FromJSON BogusData
-
 instance NFData BogusData
 
 instance Interval Int BogusData where
   intervalStart = start
   intervalEnd = end
+
+generateData :: IO [BogusData]
+generateData =
+  let numExamples = 100000
+   in do
+        starts <- replicateM numExamples randomIO
+        increments <- replicateM numExamples ((`mod` 50) <$> randomIO)
+        metadataSizes <- replicateM numExamples ((`mod` 50) <$> randomIO)
+        ids <- replicateM numExamples (pure <$> randomIO)
+        pure $
+          zipWith4
+            (\s i sz id' -> IntervalData s (s + i) (BogusMetadata id' sz))
+            starts
+            increments
+            metadataSizes
+            ids
 
 -- example blog post:
 -- http://www.serpentine.com/criterion/tutorial.html
@@ -48,8 +61,7 @@ main =
   -- TODO: set a min number of... iters, so the larger runs still spend some time
   -- TODO: wire up scripts/bench to CI and put the artifact somewhere
   do
-    jsonLines <- BS.readFile "intervals.json"
-    intervals <- throwDecode' jsonLines :: IO [BogusData]
+    intervals <- generateData
     let first10 = take 10 intervals
     let first100 = take 100 intervals
     let first1k = take 1000 intervals

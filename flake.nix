@@ -29,9 +29,8 @@
             ps.hspec-discover
           ]);
           benchDependencies = (ps: [
-            ps.aeson
-            ps.bytestring
             ps.criterion
+            ps.random
           ]);
           haskell = haskellPackages.ghcWithPackages
             (ps: packageDependencies ps ++ testDependencies ps ++ benchDependencies ps);

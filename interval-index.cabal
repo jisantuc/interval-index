@@ -53,8 +53,7 @@ benchmark interval-index-bench
         type:             exitcode-stdio-1.0
         build-depends:
                 , base            ^>=4.18
-                , aeson
-                , bytestring
                 , criterion
                 , deepseq
                 , interval-index
+                , random
