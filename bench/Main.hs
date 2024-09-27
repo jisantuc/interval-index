@@ -59,7 +59,6 @@ main :: IO ()
 main =
   -- TODO: use env (https://hackage.haskell.org/package/criterion-1.6.3.0/docs/Criterion-Main.html#g:6)
   -- TODO: set a min number of... iters, so the larger runs still spend some time
-  -- TODO: wire up scripts/bench to CI and put the artifact somewhere
   do
     intervals <- generateData
     let first10 = take 10 intervals
