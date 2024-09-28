@@ -49,16 +49,8 @@ generateData =
             metadataSizes
             ids
 
--- example blog post:
--- http://www.serpentine.com/criterion/tutorial.html
---
--- probably want nf for all of these benchmarks
--- http://www.serpentine.com/criterion/tutorial.html#benchmarking-pure-functions
--- given that I have a complex object returned at the end and I want more than just the outermost constructor
 main :: IO ()
 main =
-  -- TODO: use env (https://hackage.haskell.org/package/criterion-1.6.3.0/docs/Criterion-Main.html#g:6)
-  -- TODO: set a min number of... iters, so the larger runs still spend some time
   do
     intervals <- generateData
     let first10 = take 10 intervals
