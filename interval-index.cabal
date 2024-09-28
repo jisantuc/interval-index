@@ -22,6 +22,7 @@ library
         build-depends:
                 , base        ^>=4.18
                 , containers
+                , deepseq
                 , vector
         
         hs-source-dirs:   src
@@ -31,8 +32,8 @@ test-suite interval-index-test
         import:           warnings
         default-language: Haskell2010
         other-modules:
-                Test.Data.IntervalSpec
                 Test.Data.IntervalIndexSpec
+                Test.Data.IntervalSpec
         
         type:             exitcode-stdio-1.0
         hs-source-dirs:   test
@@ -43,3 +44,16 @@ test-suite interval-index-test
                 , hspec
                 , interval-index
                 , vector
+
+benchmark interval-index-bench
+        import:           warnings
+        default-language: Haskell2010
+        main-is:          Main.hs
+        hs-source-dirs:   bench
+        type:             exitcode-stdio-1.0
+        build-depends:
+                , base            ^>=4.18
+                , criterion
+                , deepseq
+                , interval-index
+                , random

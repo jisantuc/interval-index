@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+
+mkdir -p bench-results
+cabal bench --benchmark-options='--output bench-results/output.html --junit bench-results/junit.xml --regress allocated:iters +RTS -T'

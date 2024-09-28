@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -12,7 +13,9 @@ module Data.Interval
   )
 where
 
+import Control.DeepSeq (NFData)
 import qualified Data.Vector as Vector
+import GHC.Generics (Generic)
 
 -- TODO convert to multiline docstring
 
@@ -56,7 +59,9 @@ data IntervalLit a = IntervalLit
   { start :: a,
     end :: a
   }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Generic, Ord, Show)
+
+instance (NFData a) => NFData (IntervalLit a)
 
 ofInterval :: (Interval k a) => a -> IntervalLit k
 ofInterval x = IntervalLit (intervalStart x) (intervalEnd x)

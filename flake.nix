@@ -13,6 +13,7 @@
           haskellPackages = pkgs.haskell.packages.${compiler};
           packageDependencies = (ps: [
             ps.containers
+            ps.deepseq
             ps.vector
           ]);
           devDependencies = with haskellPackages; [
@@ -27,8 +28,12 @@
             ps.hspec
             ps.hspec-discover
           ]);
+          benchDependencies = (ps: [
+            ps.criterion
+            ps.random
+          ]);
           haskell = haskellPackages.ghcWithPackages
-            (ps: packageDependencies ps ++ testDependencies ps);
+            (ps: packageDependencies ps ++ testDependencies ps ++ benchDependencies ps);
         in
         {
           devShells.default = pkgs.mkShell
