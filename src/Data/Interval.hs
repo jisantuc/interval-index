@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE InstanceSigs #-}
@@ -63,14 +62,14 @@ data IntervalLit a = IntervalLit
 
 instance (NFData a) => NFData (IntervalLit a)
 
-ofInterval :: (Interval k a) => a -> IntervalLit k
-ofInterval x = IntervalLit (intervalStart x) (intervalEnd x)
-
-asEndpointVector :: IntervalLit a -> Vector.Vector a
-asEndpointVector (IntervalLit {start, end}) = Vector.fromList [start, end]
-
 instance (Ord a) => Interval a (IntervalLit a) where
   intervalStart :: IntervalLit a -> a
   intervalStart = start
   intervalEnd :: IntervalLit a -> a
   intervalEnd = end
+
+ofInterval :: (Interval k a) => a -> IntervalLit k
+ofInterval x = IntervalLit (intervalStart x) (intervalEnd x)
+
+asEndpointVector :: IntervalLit a -> Vector.Vector a
+asEndpointVector (IntervalLit {start, end}) = Vector.fromList [start, end]
