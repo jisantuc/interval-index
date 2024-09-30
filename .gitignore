@@ -24,3 +24,6 @@ cabal.project.local~
 
 # from nix build
 result
+
+# from benchmarks
+bench-results

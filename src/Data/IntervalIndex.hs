@@ -1,4 +1,3 @@
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Data.IntervalIndex
@@ -13,10 +12,6 @@ module Data.IntervalIndex
     findCoveringInterval,
   )
 where
-
---   - merge is find keys that touch, split them up to find the new keys, but if present in only one of the two trees
---     leave it
---   - delete is find keys, remove from values (and maybe merge adjacent?)
 
 import Data.Containers.ListUtils (nubOrd)
 import Data.Foldable (fold, foldMap', foldl')

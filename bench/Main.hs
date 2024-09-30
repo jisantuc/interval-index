@@ -4,8 +4,9 @@
 module Main where
 
 import Control.DeepSeq (NFData)
-import Control.Monad (replicateM)
-import Criterion.Main (bench, bgroup, defaultMain, nf)
+import Control.Monad (join, replicateM)
+import Criterion.Main (Benchmark, bench, bgroup, defaultMain, env, nf)
+import Data.Bifunctor (Bifunctor (bimap))
 import Data.Interval (Interval (..))
 import qualified Data.IntervalIndex as IntervalIndex
 import Data.List (zipWith4)
@@ -33,36 +34,58 @@ instance Interval Int BogusData where
   intervalStart = start
   intervalEnd = end
 
-generateData :: IO [BogusData]
-generateData =
-  let numExamples = 100000
-   in do
-        starts <- replicateM numExamples randomIO
-        increments <- replicateM numExamples ((`mod` 50) <$> randomIO)
-        metadataSizes <- replicateM numExamples ((`mod` 50) <$> randomIO)
-        ids <- replicateM numExamples (pure <$> randomIO)
-        pure $
-          zipWith4
-            (\s i sz id' -> IntervalData s (s + i) (BogusMetadata id' sz))
-            starts
-            increments
-            metadataSizes
-            ids
+generateData :: Int -> IO [BogusData]
+generateData numExamples =
+  do
+    starts <- replicateM numExamples randomIO
+    increments <- replicateM numExamples ((`mod` 50) <$> randomIO)
+    metadataSizes <- replicateM numExamples ((`mod` 50) <$> randomIO)
+    ids <- replicateM numExamples (pure <$> randomIO)
+    pure $
+      zipWith4
+        (\s i sz id' -> IntervalData s (s + i) (BogusMetadata id' sz))
+        starts
+        increments
+        metadataSizes
+        ids
 
 main :: IO ()
-main =
-  do
-    intervals <- generateData
-    let first10 = take 10 intervals
-    let first100 = take 100 intervals
-    let first1k = take 1000 intervals
-    let first10k = take 10000 intervals
-    defaultMain
-      [ bgroup
-          "fromList"
-          [ bench "10" $ nf IntervalIndex.fromList first10,
-            bench "100" $ nf IntervalIndex.fromList first100,
-            bench "1000" $ nf IntervalIndex.fromList first1k,
-            bench "10000" $ nf IntervalIndex.fromList first10k
+main = defaultMain [benchN 10, benchN 100, benchN 1000, benchN 10000]
+
+benchN :: Int -> Benchmark
+benchN numIntervals =
+  env
+    (generateData numIntervals)
+    ( \intervals ->
+        bgroup
+          (unwords [show numIntervals, "intervals"])
+          [ bench "fromList" $ nf IntervalIndex.fromList intervals,
+            mergeBench intervals,
+            insertBench intervals
           ]
-      ]
+    )
+
+mergeBench :: (Interval k a, NFData a, NFData k) => [a] -> Benchmark
+mergeBench intervals =
+  let makeIntervals = join bimap IntervalIndex.fromList
+      (first10, last90) = makeIntervals $ splitAt (length intervals `div` 10) intervals
+      (first30, last70) = makeIntervals $ splitAt (length intervals `div` 10) intervals
+      (first50, last50) = makeIntervals $ splitAt (length intervals `div` 10) intervals
+   in bgroup
+        "merge"
+        [ bench "10/90" $ nf (IntervalIndex.merge first10) last90,
+          bench "30/70" $ nf (IntervalIndex.merge first30) last70,
+          bench "50/50" $ nf (IntervalIndex.merge first50) last50,
+          bench "70/30" $ nf (IntervalIndex.merge last70) first30,
+          bench "90/10" $ nf (IntervalIndex.merge last90) first10
+        ]
+
+insertBench :: (Interval k a, NFData a, NFData k) => [a] -> Benchmark
+insertBench intervals =
+  let getSplit =
+        ( \idx ->
+            (IntervalIndex.fromList (take (idx - 1) intervals ++ drop (idx + 1) intervals), intervals !! idx)
+        )
+          . (`mod` length intervals)
+          <$> randomIO
+   in env getSplit $ \(~(idx, toInsert)) -> bench "insert" $ nf (IntervalIndex.insert idx) toInsert
