@@ -27,3 +27,6 @@ result
 
 # from benchmarks
 bench-results
+
+# python files
+__pycache__

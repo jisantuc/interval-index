@@ -9,6 +9,13 @@
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
+          python = pkgs.python311.withPackages
+            (p: with p; [
+              black
+              intervaltree
+              isort
+              pyperf
+            ]);
           compiler = "ghc96";
           haskellPackages = pkgs.haskell.packages.${compiler};
           packageDependencies = (ps: [
@@ -23,12 +30,14 @@
             hls-retrie-plugin
             hlint
             ormolu
+            python
           ];
           testDependencies = (ps: [
             ps.hspec
             ps.hspec-discover
           ]);
           benchDependencies = (ps: [
+            ps.aeson
             ps.criterion
             ps.random
           ]);

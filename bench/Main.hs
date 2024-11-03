@@ -34,6 +34,7 @@ instance Interval Int BogusData where
   intervalStart = start
   intervalEnd = end
 
+-- TODO: rewrite around reading from test-data files in bench-compare
 generateData :: Int -> IO [BogusData]
 generateData numExamples =
   do
