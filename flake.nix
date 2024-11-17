@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-23.11";
+    nixpkgs.url = "nixpkgs/nixos-24.05";
     utils.url = "github:numtide/flake-utils";
   };
 
@@ -11,44 +11,30 @@
           pkgs = nixpkgs.legacyPackages.${system};
           compiler = "ghc96";
           haskellPackages = pkgs.haskell.packages.${compiler};
-          packageDependencies = (ps: [
-            ps.containers
-            ps.deepseq
-            ps.vector
-          ]);
           devDependencies = with haskellPackages; [
             cabal-fmt
             cabal-install
             haskell-language-server
-            hls-retrie-plugin
             hlint
             ormolu
           ];
-          testDependencies = (ps: [
-            ps.hspec
-            ps.hspec-discover
-          ]);
-          benchDependencies = (ps: [
-            ps.criterion
-            ps.random
-          ]);
-          haskell = haskellPackages.ghcWithPackages
-            (ps: packageDependencies ps ++ testDependencies ps ++ benchDependencies ps);
         in
         {
-          devShells.default = pkgs.mkShell
-            {
-              packages = [ haskell ] ++ devDependencies;
-            };
-          devShells.ci = pkgs.mkShell
-            {
-              packages = [ haskell ] ++ [
-                haskellPackages.cabal-install
-              ];
-            };
+          devShells.default = haskellPackages.shellFor {
+            packages = ps: [ (ps.callCabal2nix "interval-index" ./. { }) ];
+            nativeBuildInputs = devDependencies;
+            withHoogle = true;
+          };
+          devShells.ci = haskellPackages.shellFor {
+            packages = ps: [ (ps.callCabal2nix "interval-index" ./. { }) ];
+            nativeBuildInputs = with haskellPackages; [
+              cabal-install
+            ];
+          };
 
           packages.default = haskellPackages.callCabal2nix "interval-index" ./. { };
         }
+
       );
 }
 
