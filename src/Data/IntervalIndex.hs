@@ -10,6 +10,7 @@ module Data.IntervalIndex
     touching,
     IntervalIndex,
     findCoveringInterval,
+    allIntervals,
   )
 where
 
@@ -187,3 +188,6 @@ forIds :: Map.Map Integer a -> Set.Set Integer -> [a]
 forIds intervals ids =
   let idList = Set.toList ids
    in mapMaybe (`Map.lookup` intervals) idList
+
+allIntervals :: IntervalIndex k a -> [a]
+allIntervals (IntervalIndex {intervals}) = Map.elems intervals
