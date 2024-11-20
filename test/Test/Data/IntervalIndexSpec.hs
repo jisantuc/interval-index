@@ -2,7 +2,8 @@ module Test.Data.IntervalIndexSpec where
 
 import Data.Interval (IntervalLit (..))
 import Data.IntervalIndex
-  ( at,
+  ( allIntervals,
+    at,
     findCoveringInterval,
     insert,
     touching,
@@ -53,6 +54,10 @@ spec = do
                       (1, secondInterval)
                     ]
               }
+    it "recovers the original list after construction" $
+      let inList = [IntervalLit 'a' 'e', IntervalLit 'g' 'k', IntervalLit 'l' 'n']
+       in allIntervals (IntervalIndex.fromList inList) `shouldBe` inList
+
   describe "querying interval indices" $ do
     describe "at a point" $
       do
