@@ -9,7 +9,7 @@
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          compiler = "ghc96";
+          compiler = "ghc98";
           haskellPackages = pkgs.haskell.packages.${compiler};
           devDependencies = with haskellPackages; [
             cabal-fmt
