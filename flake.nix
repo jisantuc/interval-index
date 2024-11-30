@@ -9,14 +9,7 @@
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          python = pkgs.python311.withPackages
-            (p: with p; [
-              black
-              intervaltree
-              isort
-              pyperf
-            ]);
-          compiler = "ghc96";
+          compiler = "ghc98";
           haskellPackages = pkgs.haskell.packages.${compiler};
           devDependencies = with haskellPackages; [
             cabal-fmt

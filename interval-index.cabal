@@ -20,7 +20,7 @@ library
                 Data.IntervalIndex.Internal
         
         build-depends:
-                , base        ^>=4.18
+                , base        ^>=4.19
                 , containers
                 , deepseq
                 , vector
@@ -39,7 +39,7 @@ test-suite interval-index-test
         hs-source-dirs:   test
         main-is:          Spec.hs
         build-depends:
-                , base            ^>=4.18
+                , base            ^>=4.19
                 , containers
                 , hspec
                 , interval-index
@@ -52,7 +52,7 @@ benchmark interval-index-bench
         hs-source-dirs:   bench
         type:             exitcode-stdio-1.0
         build-depends:
-                , base            ^>=4.18
+                , base            ^>=4.19
                 , criterion
                 , deepseq
                 , interval-index
