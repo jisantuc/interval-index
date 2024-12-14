@@ -10,6 +10,7 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           compiler = "ghc98";
+          python = pkgs.python312.withPackages (p: [ p.intervaltree p.pyperf ]);
           haskellPackages = pkgs.haskell.packages.${compiler};
           devDependencies = with haskellPackages; [
             cabal-fmt
@@ -25,6 +26,11 @@
             packages = ps: [ (ps.callCabal2nix "interval-index" ./. { }) ];
             nativeBuildInputs = devDependencies;
             withHoogle = true;
+          };
+          devShells.bench = pkgs.mkShell {
+            packages = [
+              (haskellPackages.ghcWithPackages (ps: [ ps.criterion ]))
+            ];
           };
           devShells.ci = haskellPackages.shellFor {
             packages = ps: [ (ps.callCabal2nix "interval-index" ./. { }) ];
