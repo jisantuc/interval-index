@@ -9,13 +9,15 @@ comparing interval-y throughput.
 There are a few noteworthy differences that I think are likely to affect results.
 
 The first is that adding values to an interval tree in the python library mutates in place rather than returns a new
-tree. This difference should affect resource utilization (maybe take less memory?) but shouldn't affect results.
+tree. This difference should affect resource utilization (maybe take less memory?) but shouldn't affect what you get
+when you query one of the objects at a point.
 
-The second difference likely affects results. [`intervaltree`] treats intervals as closed on both ends, while this
-library treats intervals as open on the right, meaning that an interval from `a` to `e` includes `a` through `d`
-in this library but all of `a` through `e` in [`intervaltree`].[^1]
+The second difference likely affects what you get when you query the tree. [`intervaltree`] treats intervals as closed
+on both ends, while this library treats intervals as open on the right, meaning that an interval from `a` to `e`
+includes `a` through `d` in this library but all of `a` through `e` in [`intervaltree`].[^1]
 
-Nonetheless, the libraries are similar enough in person that I think `[`intervaltree`] is a good point of comparison.
+Nonetheless, the libraries are similar enough in principal that I think `[`intervaltree`] is a good point of
+comparison.
 
 ## Benchmarks
 
@@ -50,7 +52,7 @@ I randomly generated 10,000[^3] interval values and measured construction times 
 SOMETHING ELSE[^4] to measure construction time in [`intervaltree`] for 100 / 1000 / all 10000 randomly chosen entries.[^5]
 
 | Entries | `interval-index` | `intervaltree` |
-| :====== | ====== | ===== |
+| :------ | ------ | ------ |
 | 100 literal sparse | a | 597 us |
 | 1,000 literal sparse | a | 7.72 ms |
 | 10,000 literal sparse | a | 82.7 ms |
@@ -78,7 +80,7 @@ of a schedule and adding new scheduled objects to it (and you have a lot of obje
 add one at a time), insertion throughput is really important to you.[^5]
 
 | Entries | `interval-index` | `intervaltree` |
-| :====== | ====== | ===== |
+| :------ | ------ | ----- |
 | 100 literal | a | a |
 | 1,000 literal | a | a |
 | 10,000 literal | a | a |
