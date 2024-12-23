@@ -1,5 +1,9 @@
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Test.Data.IntervalIndexSpec where
 
+import Data.Foldable (traverse_)
 import Data.Interval (IntervalLit (..))
 import Data.IntervalIndex
   ( allIntervals,
@@ -11,9 +15,16 @@ import Data.IntervalIndex
 import qualified Data.IntervalIndex as IntervalIndex
 import Data.IntervalIndex.Internal (IntervalIndex (..))
 import qualified Data.Map.Strict as Map
+import Data.Proxy (Proxy (Proxy))
 import qualified Data.Set as Set
 import qualified Data.Vector as Vector
 import Test.Hspec (Expectation, Spec, describe, it, shouldBe)
+import Test.Hspec.QuickCheck (prop)
+import Test.QuickCheck.Classes (Laws (..), lawsCheck, semigroupLaws)
+
+-- testing todo
+-- I think if I can create a generator for IntervalIndex Char (IntervalLit Char), I
+-- can pass that off to the property destructured from laws; see CacheSpec in the schedule sim
 
 -- TODO:
 -- `merge`, and `delete`
@@ -115,6 +126,18 @@ spec = do
         (IntervalIndex.singleton (IntervalLit 'a' 'e') `IntervalIndex.insert` IntervalLit 'c' 'c')
           `shouldBe` IntervalIndex.singleton (IntervalLit 'a' 'e')
     describe "merging indices" $ do
+      -- I think --
+      -- \* summon the laws
+      -- \* traverse the lawsProperties
+      -- \* prop each of them?
+      describe "forms a semigroup" $
+        let (Laws {lawsProperties}) = semigroupLaws (Proxy :: Proxy (IntervalIndex Char (IntervalLit Char)))
+         in traverse_
+              ( \case
+                  (propName, property) ->
+                    prop propName property
+              )
+              lawsProperties
       it "gives back an empty index with two empty indices" $
         (IntervalIndex.empty :: IntervalIndex Char (IntervalLit Char))
           `IntervalIndex.merge` IntervalIndex.empty
@@ -139,6 +162,7 @@ spec = do
             IntervalLit 'j' 'm',
             IntervalLit 'w' 'z'
           ]
+
   describe "locating keys" $ do
     it "doesn't find a key when not present or in an empty list" $ do
       findCoveringInterval (Vector.fromList []) 'a' `shouldBe` Nothing

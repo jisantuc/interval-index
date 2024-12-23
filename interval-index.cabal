@@ -41,8 +41,10 @@ test-suite interval-index-test
         build-depends:
                 , base            ^>=4.19
                 , containers
+                , criterion
                 , hspec
                 , interval-index
+                , quickcheck-classes
                 , vector
 
 benchmark interval-index-bench

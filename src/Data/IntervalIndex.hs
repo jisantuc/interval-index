@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Data.IntervalIndex
   ( empty,
@@ -191,3 +192,6 @@ forIds intervals ids =
 
 allIntervals :: IntervalIndex k a -> [a]
 allIntervals (IntervalIndex {intervals}) = Map.elems intervals
+
+instance (Interval k a) => Semigroup (IntervalIndex k a) where
+  (<>) = merge
