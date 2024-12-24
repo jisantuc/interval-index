@@ -20,9 +20,9 @@ import Data.Proxy (Proxy (Proxy))
 import qualified Data.Set as Set
 import qualified Data.Vector as Vector
 import Test.Data.Instances ()
-import Test.Hspec (Expectation, Spec, describe, it, shouldBe)
+import Test.Hspec (Expectation, Spec, SpecWith, describe, it, shouldBe)
 import Test.Hspec.QuickCheck (prop)
-import Test.QuickCheck.Classes (Laws (..), semigroupLaws)
+import Test.QuickCheck.Classes (Laws (..), monoidLaws, semigroupLaws)
 
 -- TODO:
 -- `merge`, and `delete`
@@ -128,14 +128,10 @@ spec = do
       -- \* summon the laws
       -- \* traverse the lawsProperties
       -- \* prop each of them?
-      describe "forms a semigroup" $
-        let (Laws {lawsProperties}) = semigroupLaws (Proxy :: Proxy (IntervalIndex Char (IntervalLit Char)))
-         in traverse_
-              ( \case
-                  (propName, property) ->
-                    prop propName property
-              )
-              lawsProperties
+      describe "forms a semigroup" . hspecQuickCheckLaws $
+        semigroupLaws (Proxy :: Proxy (IntervalIndex Char (IntervalLit Char)))
+      describe "forms a monoid" . hspecQuickCheckLaws $
+        monoidLaws (Proxy :: Proxy (IntervalIndex Char (IntervalLit Char)))
       it "gives back an empty index with two empty indices" $
         (IntervalIndex.empty :: IntervalIndex Char (IntervalLit Char))
           `IntervalIndex.merge` IntervalIndex.empty
@@ -211,3 +207,12 @@ mergeMatchesFromListTest intervalLits =
   let (h, t) = splitAt (length intervalLits - 2) intervalLits
    in IntervalIndex.fromList h `IntervalIndex.merge` IntervalIndex.fromList t
         `shouldBe` IntervalIndex.fromList intervalLits
+
+hspecQuickCheckLaws :: Laws -> SpecWith ()
+hspecQuickCheckLaws (Laws {lawsProperties}) =
+  traverse_
+    ( \case
+        (propName, property) ->
+          prop propName property
+    )
+    lawsProperties
