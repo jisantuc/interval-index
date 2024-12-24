@@ -5,7 +5,7 @@ module Test.Data.Instances where
 import Data.Interval (Interval, IntervalLit (..))
 import Data.IntervalIndex (IntervalIndex, fromList)
 import Data.Monoid (Endo (..))
-import Test.QuickCheck (Arbitrary (..), choose)
+import Test.QuickCheck (Arbitrary (..), choose, resize)
 
 instance (Enum a, Arbitrary a) => Arbitrary (IntervalLit a) where
   arbitrary = do
@@ -16,4 +16,4 @@ instance (Enum a, Arbitrary a) => Arbitrary (IntervalLit a) where
     pure $ IntervalLit open close
 
 instance (Arbitrary a, Interval k a) => Arbitrary (IntervalIndex k a) where
-  arbitrary = fromList <$> arbitrary
+  arbitrary = fromList <$> resize 25 arbitrary

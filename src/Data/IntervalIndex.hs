@@ -1,5 +1,4 @@
 {-# LANGUAGE NamedFieldPuns #-}
-{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Data.IntervalIndex
   ( empty,
