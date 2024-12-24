@@ -1,61 +1,64 @@
 cabal-version: 3.0
-name:          interval-index
-version:       0.1.0.0
-license:       MIT
-license-file:  LICENSE
-author:        James Santucci
-maintainer:    james.santucci@gmail.com
-copyright:     2024
-category:      Game
-build-type:    Simple
+name: interval-index
+version: 0.1.0.0
+license: MIT
+license-file: LICENSE
+author: James Santucci
+maintainer: james.santucci@gmail.com
+copyright: 2024
+category: Game
+build-type: Simple
 
 common warnings
-        ghc-options: -Wall
+  ghc-options: -Wall
 
 library
-        import:           warnings
-        exposed-modules:
-                Data.Interval
-                Data.IntervalIndex
-                Data.IntervalIndex.Internal
-        
-        build-depends:
-                , base        ^>=4.19
-                , containers
-                , deepseq
-                , vector
-        
-        hs-source-dirs:   src
-        default-language: Haskell2010
+  import: warnings
+  exposed-modules:
+    Data.Interval
+    Data.IntervalIndex
+    Data.IntervalIndex.Internal
+
+  build-depends:
+    base ^>=4.19,
+    containers,
+    deepseq,
+    vector,
+
+  hs-source-dirs: src
+  default-language: Haskell2010
 
 test-suite interval-index-test
-        import:           warnings
-        default-language: Haskell2010
-        other-modules:
-                Test.Data.IntervalIndexSpec
-                Test.Data.IntervalSpec
-        
-        type:             exitcode-stdio-1.0
-        hs-source-dirs:   test
-        main-is:          Spec.hs
-        build-depends:
-                , base            ^>=4.19
-                , containers
-                , criterion
-                , hspec
-                , interval-index
-                , quickcheck-classes
-                , vector
+  import: warnings
+  default-language: Haskell2010
+  other-modules:
+    Test.Data.Instances
+    Test.Data.IntervalIndexSpec
+    Test.Data.IntervalSpec
+
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Spec.hs
+  build-depends:
+    QuickCheck,
+    base ^>=4.19,
+    containers,
+    criterion,
+    hspec,
+    interval-index,
+    quickcheck-classes,
+    quickcheck-instances,
+    vector,
 
 benchmark interval-index-bench
-        import:           warnings
-        default-language: Haskell2010
-        main-is:          Main.hs
-        hs-source-dirs:   bench
-        type:             exitcode-stdio-1.0
-        build-depends:
-                , base            ^>=4.19
-                , criterion
-                , deepseq
-                , interval-index
-                , random
+  import: warnings
+  default-language: Haskell2010
+  main-is: Main.hs
+  hs-source-dirs: bench
+  type: exitcode-stdio-1.0
+  build-depends:
+    base ^>=4.19,
+    criterion,
+    deepseq,
+    interval-index,
+    random,

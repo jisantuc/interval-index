@@ -1,5 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Test.Data.IntervalIndexSpec where
 
@@ -18,13 +19,10 @@ import qualified Data.Map.Strict as Map
 import Data.Proxy (Proxy (Proxy))
 import qualified Data.Set as Set
 import qualified Data.Vector as Vector
+import Test.Data.Instances ()
 import Test.Hspec (Expectation, Spec, describe, it, shouldBe)
 import Test.Hspec.QuickCheck (prop)
-import Test.QuickCheck.Classes (Laws (..), lawsCheck, semigroupLaws)
-
--- testing todo
--- I think if I can create a generator for IntervalIndex Char (IntervalLit Char), I
--- can pass that off to the property destructured from laws; see CacheSpec in the schedule sim
+import Test.QuickCheck.Classes (Laws (..), semigroupLaws)
 
 -- TODO:
 -- `merge`, and `delete`
