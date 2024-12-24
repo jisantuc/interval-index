@@ -25,7 +25,7 @@ jobs:
         with:
           target: cabal:interval-index-test
           excludes: |
-            Test.IntervalIndexSpec,Test.IntervalSpec
+            Test.Data.IntervalIndexSpec,Test.Data.IntervalSpec,Test.Data.Instances
       - name: Send coverage report
         uses: codecov/codecov-action@v4
         with:
