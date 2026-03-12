@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-25.05";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
     utils.url = "github:numtide/flake-utils";
   };
 
@@ -9,7 +9,7 @@
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          compiler = "ghc98";
+          compiler = "ghc910";
           haskellPackages = pkgs.haskell.packages.${compiler};
           devDependencies = with haskellPackages; [
             cabal-fmt
